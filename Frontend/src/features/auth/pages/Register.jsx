@@ -1,5 +1,6 @@
 import React,{useState} from 'react'
 import { useNavigate, Link } from 'react-router'
+import "../auth.form.scss"
 import { useAuth } from '../hooks/useAuth'
 
 const Register = () => {
@@ -18,11 +19,11 @@ const Register = () => {
     }
 
     if(loading){
-        return (<main><h1>Loading.......</h1></main>)
+        return (<main className="auth-page"><h1>Loading.......</h1></main>)
     }
 
     return (
-        <main>
+        <main className="auth-page">
             <div className="form-container">
                 <h1>Register</h1>
 
@@ -51,7 +52,7 @@ const Register = () => {
 
                 </form>
 
-                <p>Already have an account? <Link to={"/login"} >Login</Link> </p>
+                <p className="auth-footer">Already have an account? <Link to={"/login"} >Login</Link> </p>
             </div>
         </main>
     )

@@ -1,0 +1,37 @@
+services:
+  db:
+    image: mongo:6
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  backend:
+    image: poojasahu1110/interview-ai-backend:latest
+    env_file:
+      - ./Backend/.env
+    environment:
+      - MONGO_URI=mongodb://db:27017/interview-ai
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    image: poojasahu1110/interview-ai-frontend:latest
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: on-failure
+
+volumes:
+  mongo-data:

@@ -20,6 +20,11 @@ const interviewRouter = require("./routes/interview.routes")
 app.use("/api/auth", authRouter)
 app.use("/api/interview", interviewRouter)
 
+// Simple health endpoint for container orchestration and load balancers
+app.get('/health', (req, res) => {
+    res.status(200).json({ ok: true });
+});
+
 
 
 module.exports = app

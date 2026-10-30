@@ -18,12 +18,11 @@ const Login = () => {
     }
 
     if(loading){
-        return (<main><h1>Loading.......</h1></main>)
+        return (<main className="auth-page"><h1>Loading.......</h1></main>)
     }
 
-
     return (
-        <main>
+        <main className="auth-page">
             <div className="form-container">
                 <h1>Login</h1>
                 <form onSubmit={handleSubmit}>
@@ -41,7 +40,7 @@ const Login = () => {
                     </div>
                     <button className='button primary-button' >Login</button>
                 </form>
-                <p>Don't have an account? <Link to={"/register"} >Register</Link> </p>
+                <p className="auth-footer">Don't have an account? <Link to={"/register"} >Register</Link> </p>
             </div>
         </main>
     )
