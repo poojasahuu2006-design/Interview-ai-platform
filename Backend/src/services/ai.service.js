@@ -90,11 +90,10 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
                         Job Description: ${jobDescription || "Not provided"}
 
                         CRITICAL STRICT REQUIREMENTS:
-                        1. LENGTH: Strictly 1 to 2 pages maximum (ideally 1 to 2 pages). Keep descriptions concise, punchy, and relevant to the target job description. Never exceed 2 pages.
-                        2. FORMAT: Pure semantic HTML (h1, h2, h3, h4, p, ul, li). No decorative fluff.
-                        3. ATS COMPLIANCE: Standard headers: Professional Summary, Core Competencies / Technical Skills, Professional Experience, Education, Notable Projects.
-                        4. TONE: Human-written, professional, action-oriented bullet points starting with strong action verbs.
-                        5. OUTPUT: A single JSON object with field "html" containing the resume body content.
+                        1. HEADER CENTERED: The candidate's Name (h1), Target Title / Role (h2), and Contact Information (Email | Phone | LinkedIn | GitHub | Location) MUST be strictly centered in the middle of the first page.
+                        2. LENGTH: Strictly 1 to 2 pages maximum (fits cleanly in 1 or 2 pages, never overflow to a 3rd page).
+                        3. ATS COMPLIANCE: Use standard uppercase section titles (h3): PROFESSIONAL SUMMARY, TECHNICAL SKILLS, EXPERIENCE, PROJECTS, EDUCATION, ACHIEVEMENTS.
+                        4. FORMAT: Pure semantic HTML (h1, h2, h3, h4, p, ul, li). Concise, powerful bullet points.
                     `
 
     const jsonContent = await generateWithFallback({
@@ -104,7 +103,6 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
     const rawHtml = jsonContent.html || "<p>Resume content generated.</p>"
 
-    // Strict 1-2 page layout with @page margin: 0 to remove browser date/header/footer stamps
     const printOptimizedHtml = `<!DOCTYPE html>
 <html>
 <head>
@@ -116,7 +114,7 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
 @page {
     size: A4;
-    margin: 0mm; /* Eliminates browser default header (date/time) and footer (URL) */
+    margin: 12mm 15mm 12mm 15mm; /* Gives clean top and bottom margins to ALL pages (Page 1 and Page 2) */
 }
 
 * {
@@ -136,13 +134,14 @@ html, body {
 }
 
 body {
-    padding: 14mm 16mm;
     max-width: 800px;
     margin: 0 auto;
 }
 
+/* Center Candidate Name & Contact Info in the Middle */
 h1 {
-    font-size: 22px;
+    text-align: center;
+    font-size: 24px;
     font-weight: 700;
     margin: 0 0 3px 0;
     color: #0f172a;
@@ -150,14 +149,23 @@ h1 {
 }
 
 h2 {
-    font-size: 13px;
+    text-align: center;
+    font-size: 13.5px;
     font-weight: 600;
     color: #4f46e5;
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
 
+/* Center contact details directly under Name */
+h1 + p, h2 + p, header p, .contact-info, h1 ~ ul:first-of-type {
+    text-align: center;
+    justify-content: center;
+    margin: 0 0 12px 0;
+}
+
+/* Section Headings */
 h3 {
     font-size: 12.5px;
     font-weight: 700;
@@ -167,8 +175,8 @@ h3 {
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: #0f172a;
-    break-after: avoid;
-    page-break-after: avoid;
+    break-after: avoid-page !important;
+    page-break-after: avoid !important; /* Prevents headings from being orphaned at the bottom of page */
 }
 
 h4 {
@@ -176,8 +184,8 @@ h4 {
     font-weight: 600;
     margin: 8px 0 2px 0;
     color: #1e293b;
-    break-after: avoid;
-    page-break-after: avoid;
+    break-after: avoid-page !important;
+    page-break-after: avoid !important;
 }
 
 p {
@@ -204,7 +212,6 @@ ul, p, li {
 
 @media print {
     body {
-        padding: 12mm 14mm !important;
         max-width: 100% !important;
     }
 }
