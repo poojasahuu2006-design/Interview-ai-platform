@@ -35,3 +35,4 @@ lerna-debug.log*
 
 # --- Docker volumes (local) ---
 mongo-data/
+*.zip
