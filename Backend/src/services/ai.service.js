@@ -114,9 +114,10 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* margin: 0 removes browser date/time at top and website link at bottom */
 @page {
     size: A4;
-    margin: 10mm 14mm 10mm 14mm; /* Compact margins ensuring strict 1-2 page fit */
+    margin: 0 !important;
 }
 
 * {
@@ -126,8 +127,8 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 }
 
 html, body {
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
     background: #ffffff;
     color: #0f172a;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -136,8 +137,9 @@ html, body {
 }
 
 body {
+    padding: 12mm 16mm !important;
     max-width: 800px;
-    margin: 0 auto;
+    margin: 0 auto !important;
 }
 
 /* Center Candidate Name & Contact Info */
@@ -175,7 +177,7 @@ h3 {
     font-weight: 700;
     border-bottom: 1px solid #0f172a;
     padding-bottom: 2px;
-    margin: 10px 0 4px 0;
+    margin: 12px 0 4px 0;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: #0f172a;
@@ -216,6 +218,7 @@ ul, p, li {
 
 @media print {
     body {
+        padding: 12mm 16mm !important;
         max-width: 100% !important;
     }
 }
