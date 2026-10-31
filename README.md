@@ -1,67 +1,78 @@
 # Interview AI Platform
 
-> An AI-powered interview preparation platform that analyzes job descriptions, evaluates candidate resumes, and generates customized technical questions, behavioral scenarios, skill gaps, and daily study roadmaps using Google Gemini.
+> An AI-powered interview preparation platform that analyzes job descriptions, evaluates candidate resumes, and generates customized technical questions, behavioral scenarios, skill gaps, daily study roadmaps, and tailored ATS resumes using Google Gemini.
+
+[![Live Demo](https://img.shields.io/badge/Demo-Live_Website-4F46E5?style=for-the-badge&logo=cloudflare&logoColor=white)](https://interview-ai-p.pages.dev/login)
+[![GitHub Profile](https://img.shields.io/badge/GitHub-poojasahuu2006--design-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/poojasahuu2006-design)
+[![Repository](https://img.shields.io/badge/Repository-Interview--ai--platform-blue?style=for-the-badge&logo=git&logoColor=white)](https://github.com/poojasahuu2006-design/Interview-ai-platform)
 
 [![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-24.x-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Google Gemini](https://img.shields.io/badge/AI-Google_Gemini-4285F4?logo=google&logoColor=white)](https://ai.google.dev/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare_Pages-Deployed-F38020?logo=cloudflare&logoColor=white)](https://interview-ai-p.pages.dev/login)
+[![Render](https://img.shields.io/badge/Render-Backend_Live-46E3B7?logo=render&logoColor=black)](https://interview-ai-platform-87ar.onrender.com)
 
 ---
 
-## About This Repository
+## üöÄ Live Application
 
-This is an **open source contribution** to an existing project originally built by [@ankurdtio](https://github.com/ankurdtio).
-
-I forked and contributed to this project as a learning and open source practice exercise. All my changes are clearly reflected in the commit history.
-
-### My Contributions
-
-| Area | What I Did |
-|------|-----------|
-| **UI Redesign** | Complete frontend redesign ó soft light theme, white background, black borders, indigo accent. Replaced dark AI-generated look with a clean minimal design |
-| **Loading Screen** | Built centered loading card with spinner and animated progress bar (was broken/top-left before) |
-| **AI Model Fix** | Fixed broken Gemini model (`gemini-3-flash-preview` was 404) ó updated to working `gemini-2.0-flash` |
-| **Error Handling** | Added try/catch error handling to all 4 backend controllers with proper 500 responses |
-| **Resume Optional** | Made resume PDF upload optional ó app no longer crashes if no file is uploaded |
-| **Auth Pages** | Redesigned Login and Register pages with scoped SCSS, black borders, white card |
-| **Security Hardening** | Added root `.gitignore`, hardened `.dockerignore` files, fixed `.env.example` to use only placeholder values |
-| **Interview Flow** | Added "Back to Studio", "Try Another Role" navigation buttons and "Start New Preparation" banner |
-| **SCSS Fixes** | Replaced deprecated `darken()` SCSS functions with literal hex colors to fix Dart Sass 3 warnings |
-| **Documentation** | Wrote this README and `README_DOCKER.md` |
+- **Live URL:** [https://interview-ai-p.pages.dev/login](https://interview-ai-p.pages.dev/login)
+- **Frontend Hosting:** Cloudflare Pages
+- **Backend Hosting:** Render
+- **Database:** MongoDB Atlas
 
 ---
 
-## Features
+## üë©‚Äçüíª About This Repository
 
-- **Resume & JD Analysis** ó Upload PDF resume and paste target job description
-- **Match Score** ó AI-generated candidate-to-job compatibility percentage
-- **Skill Gap Matrix** ó Missing skills categorized by severity
-- **Tailored Q&A** ó Technical and behavioral questions with model answers
-- **Study Roadmap** ó Day-by-day structured preparation timeline
-- **Auth & History** ó JWT-authenticated dashboard with past interview reports
+This project is maintained by **[@poojasahuu2006-design](https://github.com/poojasahuu2006-design)** as an **open source contribution & enhancement** building upon an initial codebase by [@ankurdtio](https://github.com/ankurdtio).
+
+All enhancements, bug fixes, UI modernization, and cloud deployment hardening are clearly documented in the commit history.
+
+### Key Contributions & Enhancements
+
+| Area | What I Built & Fixed |
+|------|----------------------|
+| **UI Modernization** | Complete redesign featuring a soft minimal theme: pure white cards, clean black borders, and modern indigo accents. Replaced harsh AI-style layouts with clean, human-designed aesthetics. |
+| **Centered Auth & Loading** | Fixed broken top-left loading screen by creating a centered, animated loading card with spinner and active progress pulse. Added scoped SCSS for Login and Register. |
+| **Resilient AI Engine** | Built a multi-model failover engine (`gemini-2.5-flash-lite`, `gemini-3.5-flash-lite`, `gemini-3.5-flash`, `gemini-3.8-flash`) to eliminate 503 high-demand capacity spikes. |
+| **Tailored ATS Resume Generator** | Re-engineered resume generation with strict 1-to-2 page constraints, centered candidate header, and zero-margin page formatting to remove browser header/footer stamps. |
+| **Dual-Token Authentication** | Solved cross-domain cookie blocking by introducing a dual-token architecture (HTTP-only SameSite=None cookies + `Authorization: Bearer <token>` in localStorage). |
+| **Robust Error Handling** | Added comprehensive `try/catch` blocks and user-facing error banners across authentication and report generation controllers. |
+| **Cloud Deployment** | Successfully deployed the full stack into production: Frontend on Cloudflare Pages, REST API on Render, and data layer on MongoDB Atlas. |
+| **Security & Git Hardening** | Sealed all environment variables (`.env` protected across 3 levels of `.gitignore` and `.dockerignore`), cleaned `.env.example` templates, and verified zero leaked credentials in git history. |
 
 ---
 
-## Tech Stack
+## üí° Features
 
-- **Frontend:** React 19, Vite, React Router v7, SCSS
-- **Backend:** Node.js, Express 5, Google Gemini API, MongoDB, Mongoose
-- **Utilities:** Multer, pdf-parse, Puppeteer, Zod, JWT
-- **DevOps:** Docker, Docker Compose, Nginx
+- **Instant Match Score** ‚Äî Quantitative candidate-to-job compatibility rating (0-100%).
+- **Interactive Question Bank** ‚Äî Expandable technical and behavioral interview questions tailored to your past projects and target JD, complete with interviewer intentions and model answers.
+- **Skill Gap Matrix** ‚Äî Categorized missing skills rated by impact (`High`, `Medium`, `Low`).
+- **Day-by-Day Preparation Roadmap** ‚Äî Daily structured preparation milestones.
+- **ATS Resume Export** ‚Äî Download tailored, high-impact 1-to-2 page ATS resumes optimized for keyword parsers.
+- **Persistent User Blueprints** ‚Äî Secure JWT authentication with past preparation plans saved to your dashboard.
 
 ---
 
-## Quick Start
+## üõ†Ô∏è Tech Stack
+
+- **Frontend:** React 19, Vite, React Router v7, SCSS, Axios
+- **Backend:** Node.js, Express 5, Google Gemini API (`@google/genai`), MongoDB, Mongoose, Zod
+- **Infrastructure:** Cloudflare Pages, Render, MongoDB Atlas, Docker, Nginx
+
+---
+
+## üíª Local Development Setup
 
 ### 1. Backend Setup
 ```bash
 cd Backend
 npm install
 cp .env.example .env
-# Fill in your own values in .env
+# Fill in your MONGO_URI, JWT_SECRET, and GOOGLE_GENAI_API_KEY in .env
 node server.js
 ```
 
@@ -74,14 +85,15 @@ npm run dev
 
 ---
 
-## Docker (One-Command Run)
+## üê≥ Docker Deployment
 
+Run the complete multi-container stack locally with one command:
 ```bash
 docker compose up -d --build
 ```
 
 ---
 
-## Original Project
+## ü§ù Attribution
 
-Original repository by [@ankurdtio](https://github.com/ankurdtio) ó I contributed improvements on top of the existing codebase as open source practice.
+Original foundational concept by [@ankurdtio](https://github.com/ankurdtio). Enhanced, modernized, secured, and deployed by [@poojasahuu2006-design](https://github.com/poojasahuu2006-design).
