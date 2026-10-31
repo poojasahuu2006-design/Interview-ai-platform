@@ -82,14 +82,6 @@ docker compose up -d --build
 
 ---
 
-## Endpoints
-
-- **Frontend:** http://localhost:5173
-- **Backend API:** http://localhost:3000
-- **Health Check:** http://localhost:3000/health
-
----
-
 ## Original Project
 
 Original repository by [@ankurdtio](https://github.com/ankurdtio) — I contributed improvements on top of the existing codebase as open source practice.
