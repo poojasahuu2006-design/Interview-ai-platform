@@ -7,6 +7,42 @@ const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
 })
 
+// Resilient list of models with automatic failover
+const CANDIDATE_MODELS = [
+    "gemini-3.5-flash",
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
+    "gemini-flash-latest"
+]
+
+async function generateWithFallback({ contents, schema }) {
+    let lastError = null
+
+    for (const model of CANDIDATE_MODELS) {
+        try {
+            console.log(`Attempting generation with model: ${model}`)
+            const response = await ai.models.generateContent({
+                model,
+                contents,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: zodToJsonSchema(schema),
+                }
+            })
+
+            if (response && response.text) {
+                console.log(`Successfully generated content using model: ${model}`)
+                return JSON.parse(response.text)
+            }
+        } catch (err) {
+            console.warn(`Model ${model} failed (${err.message.slice(0, 120)}), trying next fallback...`)
+            lastError = err
+        }
+    }
+
+    throw new Error(`All candidate AI models failed. Last error: ${lastError ? lastError.message : "Unknown error"}`)
+}
+
 const interviewReportSchema = z.object({
     matchScore: z.number().describe("A score between 0 and 100 indicating how well the candidate profile matches the job description"),
     technicalQuestions: z.array(z.object({
@@ -37,16 +73,10 @@ Resume: ${resume || "Not provided"}
 Self Description: ${selfDescription || "Not provided"}
 Job Description: ${jobDescription || "Not provided"}`
 
-    const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
+    return await generateWithFallback({
         contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(interviewReportSchema),
-        }
+        schema: interviewReportSchema
     })
-
-    return JSON.parse(response.text)
 }
 
 async function generatePdfFromHtml(htmlContent) {
@@ -102,16 +132,11 @@ Design guidelines:
 - Tailored specifically to match the keywords and requirements of the target job description
 - Single or double page print-ready format with elegant typography (Inter, Roboto or Arial)`
 
-    const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
+    const jsonContent = await generateWithFallback({
         contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(resumePdfSchema),
-        }
+        schema: resumePdfSchema
     })
 
-    const jsonContent = JSON.parse(response.text)
     const rawHtml = jsonContent.html || "<p>Resume content unavailable</p>"
 
     const printableHtml = `<!DOCTYPE html>
@@ -162,7 +187,7 @@ Design guidelines:
 <div class="resume-action-bar">
     <span><strong>Your Tailored Resume is Ready</strong> — Click Print or Save as PDF</span>
     <button class="resume-action-btn" onclick="window.print()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" width="12" height="8"></rect></svg>
         Save as PDF / Print
     </button>
 </div>
