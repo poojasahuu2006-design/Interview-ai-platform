@@ -1,4 +1,4 @@
-# üöÄ Interview AI
+# Interview AI Platform
 
 > An AI-powered interview preparation platform that analyzes job descriptions, evaluates candidate resumes, and generates customized technical questions, behavioral scenarios, skill gaps, and daily study roadmaps using Google Gemini.
 
@@ -11,43 +11,57 @@
 
 ---
 
-## ‚ú® Features
+## About This Repository
 
-- **Resume & JD Analysis:** Upload PDF resumes and analyze target job requirements.
-- **Match Score:** Instant candidate-to-job compatibility percentage (0‚Äì100%).
-- **Skill Gap Matrix:** Pinpoints missing skills categorized by severity (`High`, `Medium`, `Low`).
-- **Tailored Q&A:** Technical and behavioral questions with interviewer intentions and model answers.
-- **Study Roadmap:** Day-by-day structured preparation timeline.
-- **Custom Resume Export:** Generates an ATS-tailored resume PDF via Puppeteer.
-- **Auth & History:** JWT-authenticated dashboard tracking past interview blueprints.
+This is an **open source contribution** to an existing project originally built by [@ankurdtio](https://github.com/ankurdtio).
+
+I forked and contributed to this project as a learning and open source practice exercise. All my changes are clearly reflected in the commit history.
+
+### My Contributions
+
+| Area | What I Did |
+|------|-----------|
+| **UI Redesign** | Complete frontend redesign ó soft light theme, white background, black borders, indigo accent. Replaced dark AI-generated look with a clean minimal design |
+| **Loading Screen** | Built centered loading card with spinner and animated progress bar (was broken/top-left before) |
+| **AI Model Fix** | Fixed broken Gemini model (`gemini-3-flash-preview` was 404) ó updated to working `gemini-2.0-flash` |
+| **Error Handling** | Added try/catch error handling to all 4 backend controllers with proper 500 responses |
+| **Resume Optional** | Made resume PDF upload optional ó app no longer crashes if no file is uploaded |
+| **Auth Pages** | Redesigned Login and Register pages with scoped SCSS, black borders, white card |
+| **Security Hardening** | Added root `.gitignore`, hardened `.dockerignore` files, fixed `.env.example` to use only placeholder values |
+| **Interview Flow** | Added "Back to Studio", "Try Another Role" navigation buttons and "Start New Preparation" banner |
+| **SCSS Fixes** | Replaced deprecated `darken()` SCSS functions with literal hex colors to fix Dart Sass 3 warnings |
+| **Documentation** | Wrote this README and `README_DOCKER.md` |
 
 ---
 
-## üõ†Ô∏è Tech Stack
+## Features
 
-- **Frontend:** React 19, Vite, React Router v7, SCSS (Deep Midnight Slate theme)
-- **Backend:** Node.js, Express 5, Google Gemini API (`@google/genai`), MongoDB, Mongoose
-- **Utilities:** Multer, `pdf-parse`, Puppeteer, Zod, JWT
+- **Resume & JD Analysis** ó Upload PDF resume and paste target job description
+- **Match Score** ó AI-generated candidate-to-job compatibility percentage
+- **Skill Gap Matrix** ó Missing skills categorized by severity
+- **Tailored Q&A** ó Technical and behavioral questions with model answers
+- **Study Roadmap** ó Day-by-day structured preparation timeline
+- **Auth & History** ó JWT-authenticated dashboard with past interview reports
+
+---
+
+## Tech Stack
+
+- **Frontend:** React 19, Vite, React Router v7, SCSS
+- **Backend:** Node.js, Express 5, Google Gemini API, MongoDB, Mongoose
+- **Utilities:** Multer, pdf-parse, Puppeteer, Zod, JWT
 - **DevOps:** Docker, Docker Compose, Nginx
 
 ---
 
-## ‚ö° Quick Start
+## Quick Start
 
 ### 1. Backend Setup
 ```bash
 cd Backend
 npm install
-```
-Configure `Backend/.env`:
-```env
-PORT=3000
-MONGO_URI="mongodb://127.0.0.1:27017/interview-ai"
-JWT_SECRET=your_jwt_secret
-GOOGLE_GENAI_API_KEY=your_gemini_api_key
-```
-Start server:
-```bash
+cp .env.example .env
+# Fill in your own values in .env
 node server.js
 ```
 
@@ -60,7 +74,7 @@ npm run dev
 
 ---
 
-## üê≥ Docker (One-Command Run)
+## Docker (One-Command Run)
 
 ```bash
 docker compose up -d --build
@@ -68,8 +82,14 @@ docker compose up -d --build
 
 ---
 
-## üåê Endpoints
+## Endpoints
 
-- **Frontend:** [http://localhost:5173](http://localhost:5173)
-- **Backend API:** [http://localhost:3000](http://localhost:3000)
-- **Health Check:** [http://localhost:3000/health](http://localhost:3000/health)
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:3000
+- **Health Check:** http://localhost:3000/health
+
+---
+
+## Original Project
+
+Original repository by [@ankurdtio](https://github.com/ankurdtio) ó I contributed improvements on top of the existing codebase as open source practice.
