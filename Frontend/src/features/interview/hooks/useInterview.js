@@ -58,20 +58,54 @@ export const useInterview = () => {
     }
 
     const getResumePdf = async (interviewReportId) => {
-        setLoading(true)
-        try {
-            const data = await generateResumePdf({ interviewReportId })
-            if (data && data.html) {
-                return data.html
-            }
+        const data = await generateResumePdf({ interviewReportId })
+        if (!data || !data.html) {
             throw new Error("Resume content could not be generated")
-        } catch (error) {
-            console.error("Error generating resume:", error)
-            const msg = error.response?.data?.message || error.message || "Failed to generate resume"
-            throw new Error(msg)
-        } finally {
-            setLoading(false)
         }
+
+        const resumeHtml = data.html
+
+        // 1. Direct file download of the ATS resume
+        const blob = new Blob([resumeHtml], { type: "text/html" })
+        const downloadUrl = window.URL.createObjectURL(blob)
+        const downloadLink = document.createElement("a")
+        downloadLink.href = downloadUrl
+        downloadLink.setAttribute("download", `resume_${interviewReportId}.html`)
+        document.body.appendChild(downloadLink)
+        downloadLink.click()
+        setTimeout(() => {
+            document.body.removeChild(downloadLink)
+            window.URL.revokeObjectURL(downloadUrl)
+        }, 1000)
+
+        // 2. Open native Save-as-PDF print dialog for immediate 1-2 page PDF export
+        const printFrame = document.createElement("iframe")
+        printFrame.style.position = "fixed"
+        printFrame.style.right = "0"
+        printFrame.style.bottom = "0"
+        printFrame.style.width = "0"
+        printFrame.style.height = "0"
+        printFrame.style.border = "0"
+        document.body.appendChild(printFrame)
+
+        printFrame.contentWindow.document.open()
+        printFrame.contentWindow.document.write(resumeHtml)
+        printFrame.contentWindow.document.close()
+
+        setTimeout(() => {
+            try {
+                printFrame.contentWindow.focus()
+                printFrame.contentWindow.print()
+            } catch (e) {
+                console.warn("Print dialog closed or bypassed:", e)
+            } finally {
+                setTimeout(() => {
+                    if (document.body.contains(printFrame)) {
+                        document.body.removeChild(printFrame)
+                    }
+                }, 2000)
+            }
+        }, 500)
     }
 
     useEffect(() => {
