@@ -7,12 +7,13 @@ const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
 })
 
-// Resilient list of models with automatic failover
+// Highly available model order — prioritizing Flash Lite models that avoid 503 capacity spikes
 const CANDIDATE_MODELS = [
+    "gemini-2.5-flash-lite",
+    "gemini-3.5-flash-lite",
+    "gemini-flash-lite-latest",
     "gemini-3.5-flash",
-    "gemini-3.8-flash",
-    "gemini-3.7-flash",
-    "gemini-flash-latest"
+    "gemini-3.8-flash"
 ]
 
 async function generateWithFallback({ contents, schema }) {
@@ -20,7 +21,7 @@ async function generateWithFallback({ contents, schema }) {
 
     for (const model of CANDIDATE_MODELS) {
         try {
-            console.log(`Attempting generation with model: ${model}`)
+            console.log(`Generating content with model: ${model}`)
             const response = await ai.models.generateContent({
                 model,
                 contents,
@@ -31,16 +32,16 @@ async function generateWithFallback({ contents, schema }) {
             })
 
             if (response && response.text) {
-                console.log(`Successfully generated content using model: ${model}`)
+                console.log(`Successfully generated content using: ${model}`)
                 return JSON.parse(response.text)
             }
         } catch (err) {
-            console.warn(`Model ${model} failed (${err.message.slice(0, 120)}), trying next fallback...`)
+            console.warn(`Model ${model} failed (${err.message.slice(0, 100)}), falling back to next model...`)
             lastError = err
         }
     }
 
-    throw new Error(`All candidate AI models failed. Last error: ${lastError ? lastError.message : "Unknown error"}`)
+    throw new Error(`All candidate AI models failed: ${lastError ? lastError.message : "Unknown error"}`)
 }
 
 const interviewReportSchema = z.object({
@@ -81,36 +82,44 @@ Job Description: ${jobDescription || "Not provided"}`
 
 async function generatePdfFromHtml(htmlContent) {
     try {
-        const browser = await puppeteer.launch({
-            headless: true,
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-            args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-gpu",
-                "--no-zygote",
-                "--single-process"
-            ]
-        })
-        const page = await browser.newPage()
-        await page.setContent(htmlContent, { waitUntil: "networkidle0" })
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Puppeteer execution timed out")), 5000)
+        )
 
-        const pdfBuffer = await page.pdf({
-            format: "A4",
-            printBackground: true,
-            margin: {
-                top: "15mm",
-                bottom: "15mm",
-                left: "15mm",
-                right: "15mm"
-            }
-        })
+        const pdfPromise = (async () => {
+            const browser = await puppeteer.launch({
+                headless: true,
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+                args: [
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-gpu",
+                    "--no-zygote",
+                    "--single-process"
+                ]
+            })
+            const page = await browser.newPage()
+            await page.setContent(htmlContent, { waitUntil: "domcontentloaded" })
 
-        await browser.close()
-        return pdfBuffer
+            const pdfBuffer = await page.pdf({
+                format: "A4",
+                printBackground: true,
+                margin: {
+                    top: "15mm",
+                    bottom: "15mm",
+                    left: "15mm",
+                    right: "15mm"
+                }
+            })
+
+            await browser.close()
+            return pdfBuffer
+        })()
+
+        return await Promise.race([pdfPromise, timeoutPromise])
     } catch (err) {
-        console.warn("Puppeteer PDF generation not available on host environment, using printable HTML fallback:", err.message)
+        console.warn("Puppeteer PDF generation bypassed or timed out, delivering print-ready HTML:", err.message)
         return null
     }
 }
@@ -185,9 +194,9 @@ Design guidelines:
 </head>
 <body>
 <div class="resume-action-bar">
-    <span><strong>Your Tailored Resume is Ready</strong> — Click Print or Save as PDF</span>
+    <span><strong>Your Tailored ATS Resume is Ready</strong> — Click to Print or Save as PDF</span>
     <button class="resume-action-btn" onclick="window.print()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" width="12" height="8"></rect></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
         Save as PDF / Print
     </button>
 </div>
@@ -196,7 +205,7 @@ ${rawHtml}
 window.addEventListener("load", () => {
     setTimeout(() => {
         window.print();
-    }, 500);
+    }, 600);
 });
 </script>
 </body>
