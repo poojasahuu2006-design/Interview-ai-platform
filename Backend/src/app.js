@@ -1,6 +1,7 @@
 const express = require("express")
 const cookieParser = require("cookie-parser")
 const cors = require("cors")
+const mongoose = require("mongoose")
 
 const app = express()
 
@@ -24,9 +25,15 @@ const interviewRouter = require("./routes/interview.routes")
 app.use("/api/auth", authRouter)
 app.use("/api/interview", interviewRouter)
 
-// Simple health endpoint for container orchestration and load balancers
+// Diagnostic health endpoint
 app.get("/health", (req, res) => {
-    res.status(200).json({ ok: true })
+    const states = ["disconnected", "connected", "connecting", "disconnecting"]
+    const dbState = states[mongoose.connection.readyState] || "unknown"
+    res.status(200).json({
+        ok: true,
+        database: dbState,
+        mongoUriConfigured: Boolean(process.env.MONGO_URI)
+    })
 })
 
 // Global error handler
