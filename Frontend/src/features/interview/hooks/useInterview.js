@@ -61,24 +61,14 @@ export const useInterview = () => {
         setLoading(true)
         try {
             const data = await generateResumePdf({ interviewReportId })
-
-            const contentType = data.type || ""
-            if (contentType.includes("html")) {
-                const htmlText = await data.text()
-                const blob = new Blob([htmlText], { type: "text/html" })
-                const blobUrl = window.URL.createObjectURL(blob)
-                window.open(blobUrl, "_blank")
-            } else {
-                const url = window.URL.createObjectURL(new Blob([ data ], { type: "application/pdf" }))
-                const link = document.createElement("a")
-                link.href = url
-                link.setAttribute("download", `resume_${interviewReportId}.pdf`)
-                document.body.appendChild(link)
-                link.click()
+            if (data && data.html) {
+                return data.html
             }
+            throw new Error("Resume content could not be generated")
         } catch (error) {
-            console.error("Error downloading resume:", error)
-            alert("Could not generate resume at this moment. Please check backend logs.")
+            console.error("Error generating resume:", error)
+            const msg = error.response?.data?.message || error.message || "Failed to generate resume"
+            throw new Error(msg)
         } finally {
             setLoading(false)
         }
@@ -94,4 +84,3 @@ export const useInterview = () => {
 
     return { loading, report, reports, generateReport, getReportById, getReports, getResumePdf }
 }
-
