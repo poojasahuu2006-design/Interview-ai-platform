@@ -65,20 +65,7 @@ export const useInterview = () => {
 
         const resumeHtml = data.html
 
-        // 1. Direct file download of the ATS resume
-        const blob = new Blob([resumeHtml], { type: "text/html" })
-        const downloadUrl = window.URL.createObjectURL(blob)
-        const downloadLink = document.createElement("a")
-        downloadLink.href = downloadUrl
-        downloadLink.setAttribute("download", `resume_${interviewReportId}.html`)
-        document.body.appendChild(downloadLink)
-        downloadLink.click()
-        setTimeout(() => {
-            document.body.removeChild(downloadLink)
-            window.URL.revokeObjectURL(downloadUrl)
-        }, 1000)
-
-        // 2. Open native Save-as-PDF print dialog for immediate 1-2 page PDF export
+        // Open native Save-as-PDF print dialog for immediate clean 1-2 page PDF export
         const printFrame = document.createElement("iframe")
         printFrame.style.position = "fixed"
         printFrame.style.right = "0"
@@ -90,6 +77,7 @@ export const useInterview = () => {
 
         printFrame.contentWindow.document.open()
         printFrame.contentWindow.document.write(resumeHtml)
+        printFrame.contentWindow.document.title = ""
         printFrame.contentWindow.document.close()
 
         setTimeout(() => {
@@ -103,7 +91,7 @@ export const useInterview = () => {
                     if (document.body.contains(printFrame)) {
                         document.body.removeChild(printFrame)
                     }
-                }, 2000)
+                }, 3000)
             }
         }, 500)
     }
