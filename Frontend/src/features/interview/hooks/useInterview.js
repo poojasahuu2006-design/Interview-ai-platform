@@ -3,9 +3,7 @@ import { useContext, useEffect } from "react"
 import { InterviewContext } from "../interview.context"
 import { useParams } from "react-router"
 
-
 export const useInterview = () => {
-
     const context = useContext(InterviewContext)
     const { interviewId } = useParams()
 
@@ -22,12 +20,11 @@ export const useInterview = () => {
             response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile })
             setReport(response.interviewReport)
         } catch (error) {
-            console.log(error)
+            console.error("Error generating report:", error)
         } finally {
             setLoading(false)
         }
-
-        return response.interviewReport
+        return response?.interviewReport
     }
 
     const getReportById = async (interviewId) => {
@@ -37,11 +34,11 @@ export const useInterview = () => {
             response = await getInterviewReportById(interviewId)
             setReport(response.interviewReport)
         } catch (error) {
-            console.log(error)
+            console.error("Error fetching report:", error)
         } finally {
             setLoading(false)
         }
-        return response.interviewReport
+        return response?.interviewReport
     }
 
     const getReports = async () => {
@@ -51,28 +48,35 @@ export const useInterview = () => {
             response = await getAllInterviewReports()
             setReports(response.interviewReports)
         } catch (error) {
-            console.log(error)
+            console.error("Error fetching reports:", error)
         } finally {
             setLoading(false)
         }
-
-        return response.interviewReports
+        return response?.interviewReports
     }
 
     const getResumePdf = async (interviewReportId) => {
         setLoading(true)
-        let response = null
         try {
-            response = await generateResumePdf({ interviewReportId })
-            const url = window.URL.createObjectURL(new Blob([ response ], { type: "application/pdf" }))
-            const link = document.createElement("a")
-            link.href = url
-            link.setAttribute("download", `resume_${interviewReportId}.pdf`)
-            document.body.appendChild(link)
-            link.click()
-        }
-        catch (error) {
-            console.log(error)
+            const data = await generateResumePdf({ interviewReportId })
+
+            const contentType = data.type || ""
+            if (contentType.includes("html")) {
+                const htmlText = await data.text()
+                const blob = new Blob([htmlText], { type: "text/html" })
+                const blobUrl = window.URL.createObjectURL(blob)
+                window.open(blobUrl, "_blank")
+            } else {
+                const url = window.URL.createObjectURL(new Blob([ data ], { type: "application/pdf" }))
+                const link = document.createElement("a")
+                link.href = url
+                link.setAttribute("download", `resume_${interviewReportId}.pdf`)
+                document.body.appendChild(link)
+                link.click()
+            }
+        } catch (error) {
+            console.error("Error downloading resume:", error)
+            alert("Could not generate resume at this moment. Please check backend logs.")
         } finally {
             setLoading(false)
         }
@@ -87,5 +91,4 @@ export const useInterview = () => {
     }, [ interviewId ])
 
     return { loading, report, reports, generateReport, getReportById, getReports, getResumePdf }
-
 }
