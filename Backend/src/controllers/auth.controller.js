@@ -4,9 +4,9 @@ const jwt = require("jsonwebtoken")
 const tokenBlacklistModel = require("../models/blacklist.model")
 
 /**
- * @name registerUserController
- * @description register a new user, expects username, email and password in the request body
- * @access Public
+ *  registerUserController
+ *  register a new user, expects username, email and password in the request body
+ * Public
  */
 async function registerUserController(req, res) {
 
@@ -58,9 +58,9 @@ async function registerUserController(req, res) {
 
 
 /**
- * @name loginUserController
- * @description login a user, expects email and password in the request body
- * @access Public
+ *  loginUserController
+ *  login a user, expects email and password in the request body
+ *  Public
  */
 async function loginUserController(req, res) {
 
@@ -100,11 +100,6 @@ async function loginUserController(req, res) {
 }
 
 
-/**
- * @name logoutUserController
- * @description clear token from user cookie and add the token in blacklist
- * @access public
- */
 async function logoutUserController(req, res) {
     const token = req.cookies.token
 
@@ -119,11 +114,6 @@ async function logoutUserController(req, res) {
     })
 }
 
-/**
- * @name getMeController
- * @description get the current logged in user details.
- * @access private
- */
 async function getMeController(req, res) {
 
     const user = await userModel.findById(req.user.id)
