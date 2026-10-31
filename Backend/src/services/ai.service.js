@@ -89,11 +89,13 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
                         Self Description: ${selfDescription || "Not provided"}
                         Job Description: ${jobDescription || "Not provided"}
 
-                        CRITICAL STRICT REQUIREMENTS:
-                        1. HEADER CENTERED: The candidate's Name (h1), Target Title / Role (h2), and Contact Information (Email | Phone | LinkedIn | GitHub | Location) MUST be strictly centered in the middle of the first page.
-                        2. LENGTH: Strictly 1 to 2 pages maximum (fits cleanly in 1 or 2 pages, never overflow to a 3rd page).
-                        3. ATS COMPLIANCE: Use standard uppercase section titles (h3): PROFESSIONAL SUMMARY, TECHNICAL SKILLS, EXPERIENCE, PROJECTS, EDUCATION, ACHIEVEMENTS.
-                        4. FORMAT: Pure semantic HTML (h1, h2, h3, h4, p, ul, li). Concise, powerful bullet points.
+                        HARD STRICT LENGTH RULES:
+                        - TOTAL LENGTH MUST BE STRICTLY MAXIMUM 2 PAGES (NEVER 3 PAGES).
+                        - Total word count should be around 350-450 words max to comfortably fit within 2 pages without overflowing.
+                        - Concise, punchy bullet points (max 2-3 bullets per project/experience, max 1 line per bullet).
+                        - Header centered: Candidate Name (h1), Target Title (h2), Contact info in one line (Email | Phone | LinkedIn | GitHub | Location).
+                        - Standard ATS uppercase sections (h3): SUMMARY, SKILLS, EXPERIENCE, PROJECTS, EDUCATION.
+                        - No unnecessary filler or overly long paragraphs.
                     `
 
     const jsonContent = await generateWithFallback({
@@ -114,7 +116,7 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
 @page {
     size: A4;
-    margin: 12mm 15mm 12mm 15mm; /* Gives clean top and bottom margins to ALL pages (Page 1 and Page 2) */
+    margin: 10mm 14mm 10mm 14mm; /* Compact margins ensuring strict 1-2 page fit */
 }
 
 * {
@@ -129,8 +131,8 @@ html, body {
     background: #ffffff;
     color: #0f172a;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 12px;
-    line-height: 1.45;
+    font-size: 11px;
+    line-height: 1.38;
 }
 
 body {
@@ -138,69 +140,71 @@ body {
     margin: 0 auto;
 }
 
-/* Center Candidate Name & Contact Info in the Middle */
+/* Center Candidate Name & Contact Info */
 h1 {
     text-align: center;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 700;
-    margin: 0 0 3px 0;
+    margin: 0 0 2px 0;
     color: #0f172a;
     letter-spacing: -0.01em;
 }
 
 h2 {
     text-align: center;
-    font-size: 13.5px;
+    font-size: 12px;
     font-weight: 600;
     color: #4f46e5;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
 
-/* Center contact details directly under Name */
+/* Contact info paragraph centered */
 h1 + p, h2 + p, header p, .contact-info, h1 ~ ul:first-of-type {
     text-align: center;
     justify-content: center;
-    margin: 0 0 12px 0;
+    font-size: 10.5px;
+    color: #475569;
+    margin: 0 0 10px 0;
 }
 
 /* Section Headings */
 h3 {
-    font-size: 12.5px;
+    font-size: 11.5px;
     font-weight: 700;
     border-bottom: 1px solid #0f172a;
     padding-bottom: 2px;
-    margin: 14px 0 6px 0;
+    margin: 10px 0 4px 0;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: #0f172a;
     break-after: avoid-page !important;
-    page-break-after: avoid !important; /* Prevents headings from being orphaned at the bottom of page */
+    page-break-after: avoid !important;
 }
 
 h4 {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    margin: 8px 0 2px 0;
+    margin: 6px 0 1px 0;
     color: #1e293b;
     break-after: avoid-page !important;
     page-break-after: avoid !important;
 }
 
 p {
-    font-size: 11.5px;
+    font-size: 10.5px;
     color: #334155;
-    margin: 2px 0 4px 0;
+    margin: 2px 0 3px 0;
 }
 
 ul {
-    padding-left: 16px;
-    margin: 3px 0 6px 0;
+    padding-left: 14px;
+    margin: 2px 0 4px 0;
 }
 
 li {
-    font-size: 11.5px;
+    font-size: 10.5px;
     color: #334155;
     margin-bottom: 2px;
 }
