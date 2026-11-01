@@ -64,6 +64,7 @@ export const useInterview = () => {
         }
 
         const resumeHtml = data.html
+        const sanitizedHtml = resumeHtml.replace(/<title[\s\S]*?<\/title>/gi, "")
 
         // Open native Save-as-PDF print dialog for immediate clean 1-2 page PDF export
         const printFrame = document.createElement("iframe")
@@ -75,9 +76,15 @@ export const useInterview = () => {
         printFrame.style.border = "0"
         document.body.appendChild(printFrame)
 
+        const prevTitle = document.title
+        document.title = "" // Suppress window title from browser print headers
+
         printFrame.contentWindow.document.open()
-        printFrame.contentWindow.document.write(resumeHtml)
+        printFrame.contentWindow.document.write(sanitizedHtml)
         printFrame.contentWindow.document.title = ""
+        if (printFrame.contentDocument) {
+            printFrame.contentDocument.title = ""
+        }
         printFrame.contentWindow.document.close()
 
         setTimeout(() => {
@@ -87,6 +94,7 @@ export const useInterview = () => {
             } catch (e) {
                 console.warn("Print dialog closed or bypassed:", e)
             } finally {
+                document.title = prevTitle || "Interview AI"
                 setTimeout(() => {
                     if (document.body.contains(printFrame)) {
                         document.body.removeChild(printFrame)

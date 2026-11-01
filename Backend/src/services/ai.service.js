@@ -81,29 +81,38 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
     const resumePdfSchema = z.object({
-        html: z.string().describe("The HTML content of the resume which can be converted to PDF using any library like puppeteer")
+        html: z.string().describe("The clean HTML body content of the ATS resume without outer <html> or <head> tags")
     })
 
-    const prompt = `Generate a high-impact, ATS-friendly resume for a candidate with:
-                        Resume: ${resume || "Not provided"}
-                        Self Description: ${selfDescription || "Not provided"}
-                        Job Description: ${jobDescription || "Not provided"}
+    const prompt = `Generate a high-impact, ATS-compliant resume for a candidate:
+Candidate Resume: ${resume || "Not provided"}
+Candidate Self Description: ${selfDescription || "Not provided"}
+Target Job Description: ${jobDescription || "Not provided"}
 
-                        HARD STRICT LENGTH RULES:
-                        - TOTAL LENGTH MUST BE STRICTLY MAXIMUM 2 PAGES (NEVER 3 PAGES).
-                        - Total word count should be around 350-450 words max to comfortably fit within 2 pages without overflowing.
-                        - Concise, punchy bullet points (max 2-3 bullets per project/experience, max 1 line per bullet).
-                        - Header centered: Candidate Name (h1), Target Title (h2), Contact info in one line (Email | Phone | LinkedIn | GitHub | Location).
-                        - Standard ATS uppercase sections (h3): SUMMARY, SKILLS, EXPERIENCE, PROJECTS, EDUCATION.
-                        - No unnecessary filler or overly long paragraphs.
-                    `
+STRICT FORMATTING & LENGTH CONSTRAINTS:
+1. STRICT LENGTH: MUST FIT COMFORTABLY WITHIN 1 TO 2 PAGES MAX (ABSOLUTELY NEVER SPILL ONTO A 3RD PAGE).
+2. WORD COUNT: Total word count must be 320 to 420 words maximum. Keep it concise, punchy, and quantified.
+3. CENTERED HEADER: Candidate Full Name (h1), Target Title (h2), and Contact Info (Email | Phone | LinkedIn | GitHub | Location) MUST all be centered at the top of page 1.
+4. ATS SECTIONS: Use uppercase h3 for section headers: SUMMARY, TECHNICAL SKILLS, EXPERIENCE, PROJECTS, EDUCATION, ACHIEVEMENTS.
+5. NO ORPHAN HEADINGS: Each section must be followed immediately by its content. Max 2-3 bullets per project/experience, each bullet 1 single line.
+6. DO NOT include <html>, <head>, or <title> tags. Only return the clean inner HTML starting with <header> and <section> tags.
+`
 
     const jsonContent = await generateWithFallback({
         contents: prompt,
         schema: resumePdfSchema
     })
 
-    const rawHtml = jsonContent.html || "<p>Resume content generated.</p>"
+    let rawHtml = jsonContent.html || "<p>Resume content generated.</p>"
+
+    // Strip any <html>, <head>, <title>, <body> tags if returned by model
+    rawHtml = rawHtml
+        .replace(/<!DOCTYPE[^>]*>/gi, "")
+        .replace(/<title[\s\S]*?<\/title>/gi, "")
+        .replace(/<head[\s\S]*?<\/head>/gi, "")
+        .replace(/<\/?html[^>]*>/gi, "")
+        .replace(/<\/?body[^>]*>/gi, "")
+        .trim()
 
     const printOptimizedHtml = `<!DOCTYPE html>
 <html>
@@ -114,10 +123,12 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* margin: 0 removes browser date/time at top and website link at bottom */
 @page {
-    size: A4;
-    margin: 0 !important;
+    size: A4 portrait;
+    margin-top: 16mm;
+    margin-bottom: 16mm;
+    margin-left: 14mm;
+    margin-right: 14mm;
 }
 
 * {
@@ -127,57 +138,60 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 }
 
 html, body {
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0;
+    padding: 0;
     background: #ffffff;
     color: #0f172a;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 11px;
-    line-height: 1.38;
+    line-height: 1.4;
 }
 
 body {
-    padding: 12mm 16mm !important;
     max-width: 800px;
-    margin: 0 auto !important;
+    margin: 0 auto;
 }
 
-/* Center Candidate Name & Contact Info */
+/* Strictly Center Candidate Header on Page 1 */
+header, .header, .candidate-header, h1, h1 + p, h1 + div, h2, .contact, .contact-info {
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
 h1 {
-    text-align: center;
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 700;
-    margin: 0 0 2px 0;
+    margin: 0 0 3px 0;
     color: #0f172a;
     letter-spacing: -0.01em;
+    text-align: center;
 }
 
 h2 {
-    text-align: center;
     font-size: 12px;
     font-weight: 600;
     color: #4f46e5;
-    margin: 0 0 6px 0;
+    margin: 0 0 5px 0;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-}
-
-/* Contact info paragraph centered */
-h1 + p, h2 + p, header p, .contact-info, h1 ~ ul:first-of-type {
     text-align: center;
-    justify-content: center;
-    font-size: 10.5px;
-    color: #475569;
-    margin: 0 0 10px 0;
 }
 
-/* Section Headings */
-h3 {
+header p, .contact-info, h1 + p, h2 + p {
+    font-size: 10px;
+    color: #475569;
+    margin: 0 0 12px 0;
+    text-align: center;
+}
+
+/* Standard ATS Uppercase Section Headings */
+h3, .section-title {
     font-size: 11.5px;
     font-weight: 700;
     border-bottom: 1px solid #0f172a;
     padding-bottom: 2px;
-    margin: 12px 0 4px 0;
+    margin: 12px 0 5px 0;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: #0f172a;
@@ -185,10 +199,16 @@ h3 {
     page-break-after: avoid !important;
 }
 
+/* Prevent heading from detaching from its section content */
+h2 + *, h3 + *, h4 + * {
+    break-before: avoid-page !important;
+    page-break-before: avoid !important;
+}
+
 h4 {
     font-size: 11px;
     font-weight: 600;
-    margin: 6px 0 1px 0;
+    margin: 6px 0 2px 0;
     color: #1e293b;
     break-after: avoid-page !important;
     page-break-after: avoid !important;
@@ -206,19 +226,19 @@ ul {
 }
 
 li {
-    font-size: 10.5px;
+    font-size: 10px;
     color: #334155;
     margin-bottom: 2px;
+    line-height: 1.35;
 }
 
-ul, p, li {
-    break-inside: avoid;
-    page-break-inside: avoid;
+section, .section, .experience-item, .project-item, .education-item, ul, li {
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
 }
 
 @media print {
     body {
-        padding: 12mm 16mm !important;
         max-width: 100% !important;
     }
 }
@@ -228,6 +248,11 @@ ul, p, li {
 ${rawHtml}
 </body>
 </html>`
+
+    return {
+        html: printOptimizedHtml
+    }
+}
 
     return {
         html: printOptimizedHtml
